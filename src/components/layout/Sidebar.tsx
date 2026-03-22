@@ -42,29 +42,21 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 h-full w-60 bg-white border-r border-brand-100 flex flex-col z-30">
 
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-brand-100">
-        <div className="flex items-center gap-2.5">
-          <div className="relative w-8 h-8 flex-shrink-0">
-            <div className="w-8 h-8 rounded bg-brand-900 flex items-center justify-center">
-              <Eye className="w-4 h-4 text-white" />
-            </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-accent rounded-sm" />
-          </div>
-
-          <div className="leading-none">
-            <div className="flex items-baseline gap-1">
-              <span className="text-[13px] font-extrabold tracking-tight text-brand-900 uppercase">
-                ARM
-              </span>
-              <span className="text-[13px] font-light tracking-widest text-brand-600 uppercase">
-                Optics
-              </span>
-            </div>
-            <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-brand-400 mt-0.5">
-              CRM Platform
-            </p>
-          </div>
+      <div className="px-5 py-4 border-b border-brand-100">
+        <div className="flex items-end gap-1.5 leading-none">
+          <span className="text-[27px] font-black tracking-tight text-brand-600" style={{ lineHeight: 1 }}>
+            arm
+          </span>
+          <svg viewBox="0 0 9 20" style={{ height: 17, width: "auto", flexShrink: 0, marginBottom: 2 }} fill="none">
+            <polygon points="0,18 7,0 9,1 2,19" fill="#d93226" />
+          </svg>
+          <span className="text-[14px] font-extralight tracking-[0.16em] text-brand-500 uppercase" style={{ lineHeight: 1, marginBottom: 2 }}>
+            Optics
+          </span>
         </div>
+        <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-brand-400 mt-1.5">
+          CRM Platform
+        </p>
       </div>
 
       {/* Navigation */}

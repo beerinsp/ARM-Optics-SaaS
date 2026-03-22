@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import { Toaster } from "sonner";
-import { getLocale, getDict } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import { LocaleProvider } from "@/lib/i18n/context";
 import "./globals.css";
 
@@ -16,6 +17,9 @@ export const metadata: Metadata = {
     template: "%s | ARM Optics CRM",
   },
   description: "Customer management platform for ARM Optics",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default async function RootLayout({
