@@ -25,9 +25,14 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  // getSession() reads the JWT from cookies without a Supabase Auth HTTP round-trip.
+  // getUser() (server-validated) would add ~150-300ms to every navigation request.
+  // Security: redirect decisions here are UX-only; RLS policies and the staff/portal
+  // layouts call getCachedUser() (getUser) to enforce actual authentication.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
 
   const { pathname } = request.nextUrl;
 

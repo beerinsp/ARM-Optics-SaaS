@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getCachedUser } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/layout/Sidebar";
 
 export default async function StaffLayout({
@@ -7,16 +7,20 @@ export default async function StaffLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getCachedUser() is request-scoped via React.cache(). Any page component in this
+  // render pass that also calls getCachedUser() gets the cached result — one
+  // Supabase Auth HTTP request instead of two per navigation.
+  // createClient() is cheap (cookie read + object construction) so run in parallel.
+  const [{ data: { user } }, supabase] = await Promise.all([
+    getCachedUser(),
+    createClient(),
+  ]);
 
   if (!user) {
     redirect("/login");
   }
 
-  // Verify staff profile exists
+  // Verify staff profile exists and is active.
   const { data: staffProfile } = await supabase
     .from("staff_profiles")
     .select("id, role, is_active")
