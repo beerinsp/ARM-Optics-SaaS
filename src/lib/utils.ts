@@ -36,12 +36,12 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
 };
 
 export const ORDER_STATUS_COLORS: Record<string, string> = {
-  pending: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
-  in_progress: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  lab_sent: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  ready: "bg-green-500/20 text-green-300 border-green-500/30",
-  collected: "bg-gray-500/20 text-gray-300 border-gray-500/30",
-  cancelled: "bg-red-500/20 text-red-300 border-red-500/30",
+  pending:     "bg-amber-50 text-amber-700 border-amber-200",
+  in_progress: "bg-blue-50 text-blue-700 border-blue-200",
+  lab_sent:    "bg-purple-50 text-purple-700 border-purple-200",
+  ready:       "bg-green-50 text-green-700 border-green-200",
+  collected:   "bg-gray-100 text-gray-600 border-gray-200",
+  cancelled:   "bg-red-50 text-red-700 border-red-200",
 };
 
 export const STAFF_ROLE_LABELS: Record<string, string> = {

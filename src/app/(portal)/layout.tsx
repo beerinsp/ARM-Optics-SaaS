@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getLocale, getDict } from "@/lib/i18n";
 import Link from "next/link";
-import { Eye, LogOut } from "lucide-react";
+import { Eye } from "lucide-react";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { PortalSignOut } from "./PortalSignOut";
 
 export default async function PortalLayout({
   children,
@@ -17,35 +20,37 @@ export default async function PortalLayout({
     redirect("/portal-login");
   }
 
+  const locale = await getLocale();
+  const dict = getDict(locale);
+  const t = dict.portal;
+  const tn = dict.nav;
+
   return (
-    <div className="min-h-screen bg-dark-900">
+    <div className="min-h-screen bg-brand-50">
       {/* Portal Header */}
-      <header className="bg-dark-950/95 border-b border-white/[0.05] backdrop-blur-xl">
+      <header className="bg-white border-b border-brand-100 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
-              <Eye className="w-4 h-4 text-dark-950" />
+            <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
+              <Eye className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="text-sm font-bold text-dark-100 font-display leading-none">ARM Optics</p>
-              <p className="text-[10px] text-dark-500 tracking-widest uppercase">Customer Portal</p>
+              <p className="text-sm font-bold text-brand-900 font-display leading-none">ARM Optics</p>
+              <p className="text-[10px] text-brand-400 tracking-widest uppercase">{t.customerPortalLabel}</p>
             </div>
           </div>
           <nav className="flex items-center gap-4">
-            <Link href="/portal" className="text-sm text-dark-400 hover:text-dark-200 transition-colors">
-              Dashboard
+            <Link href="/portal" className="text-sm text-brand-500 hover:text-brand-800 transition-colors">
+              {t.dashboardTitle}
             </Link>
-            <Link href="/portal/orders" className="text-sm text-dark-400 hover:text-dark-200 transition-colors">
-              Orders
+            <Link href="/portal/orders" className="text-sm text-brand-500 hover:text-brand-800 transition-colors">
+              {tn.portalOrders}
             </Link>
-            <Link href="/portal/prescriptions" className="text-sm text-dark-400 hover:text-dark-200 transition-colors">
-              Prescriptions
+            <Link href="/portal/prescriptions" className="text-sm text-brand-500 hover:text-brand-800 transition-colors">
+              {tn.portalPrescriptions}
             </Link>
-            <form action="/api/auth/signout" method="POST">
-              <button className="flex items-center gap-1 text-xs text-dark-500 hover:text-dark-300 transition-colors">
-                <LogOut className="w-3.5 h-3.5" /> Sign out
-              </button>
-            </form>
+            <LanguageSwitcher compact />
+            <PortalSignOut label={t.signOut} />
           </nav>
         </div>
       </header>

@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { getLocale, getDict } from "@/lib/i18n";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus, ChevronRight } from "lucide-react";
-import { formatDate, formatCurrency, ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "@/lib/utils";
+import { formatDate, formatCurrency, ORDER_STATUS_COLORS } from "@/lib/utils";
 import type { OrderWithCustomer } from "@/types/database";
 
 interface PageProps {
@@ -12,6 +13,10 @@ interface PageProps {
 
 export default async function OrdersPage({ searchParams }: PageProps) {
   const { status, page = "1" } = await searchParams;
+  const locale = await getLocale();
+  const dict = getDict(locale);
+  const t = dict.orders;
+
   const supabase = await createClient();
   const pageSize = 25;
   const offset = (parseInt(page) - 1) * pageSize;
@@ -29,23 +34,23 @@ export default async function OrdersPage({ searchParams }: PageProps) {
   const { data: orders, count } = await query;
 
   const statuses = [
-    { value: "", label: "All" },
-    { value: "pending", label: "Pending" },
-    { value: "in_progress", label: "In Progress" },
-    { value: "lab_sent", label: "Lab Sent" },
-    { value: "ready", label: "Ready" },
-    { value: "collected", label: "Collected" },
+    { value: "",            label: t.filterAll },
+    { value: "pending",     label: t.filterPending },
+    { value: "in_progress", label: t.filterInProgress },
+    { value: "lab_sent",    label: t.filterLabSent },
+    { value: "ready",       label: t.filterReady },
+    { value: "collected",   label: t.filterCollected },
   ];
 
   return (
     <div>
       <PageHeader
-        title="Orders"
-        description="Manage all optical orders"
+        title={t.title}
+        description={t.description}
         actions={
           <Button asChild size="sm">
             <Link href="/orders/new">
-              <Plus className="w-4 h-4" /> New Order
+              <Plus className="w-4 h-4" /> {t.newOrder}
             </Link>
           </Button>
         }
@@ -59,8 +64,8 @@ export default async function OrdersPage({ searchParams }: PageProps) {
             href={value ? `/orders?status=${value}` : "/orders"}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
               status === value || (!status && !value)
-                ? "bg-gold/10 text-gold border-gold/20"
-                : "text-dark-400 border-white/5 hover:text-dark-200 hover:border-white/10"
+                ? "bg-accent/10 text-accent border-accent/20"
+                : "text-brand-500 border-brand-100 hover:text-brand-800 hover:border-brand-200"
             }`}
           >
             {label}
@@ -70,33 +75,33 @@ export default async function OrdersPage({ searchParams }: PageProps) {
 
       {/* Table */}
       <div className="card overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
-          <p className="text-sm text-dark-400">
-            {count ?? 0} order{count !== 1 ? "s" : ""}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-brand-100">
+          <p className="text-sm text-brand-500">
+            {count ?? 0} {count !== 1 ? t.countPlural : t.count}
           </p>
         </div>
 
         {!orders || orders.length === 0 ? (
           <div className="p-12 text-center">
-            <p className="text-dark-400 text-sm mb-3">No orders found.</p>
+            <p className="text-brand-500 text-sm mb-3">{t.noOrders}</p>
             <Button asChild size="sm">
-              <Link href="/orders/new"><Plus className="w-4 h-4" /> Create first order</Link>
+              <Link href="/orders/new"><Plus className="w-4 h-4" /> {t.createFirst}</Link>
             </Button>
           </div>
         ) : (
-          <div className="divide-y divide-white/[0.04]">
+          <div className="divide-y divide-brand-100">
             {(orders as OrderWithCustomer[]).map((order) => (
               <Link
                 key={order.id}
                 href={`/orders/${order.id}`}
-                className="flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.02] transition-colors group"
+                className="flex items-center justify-between px-5 py-3.5 hover:bg-brand-50 transition-colors group"
               >
                 <div className="flex items-center gap-4">
                   <div>
-                    <p className="text-sm font-semibold text-dark-100 group-hover:text-gold transition-colors tabular-nums">
+                    <p className="text-sm font-semibold text-brand-900 group-hover:text-accent transition-colors tabular-nums">
                       {order.order_number}
                     </p>
-                    <p className="text-xs text-dark-400">
+                    <p className="text-xs text-brand-500">
                       {order.customers?.first_name} {order.customers?.last_name}
                       {order.customers?.phone && ` · ${order.customers.phone}`}
                     </p>
@@ -104,23 +109,23 @@ export default async function OrdersPage({ searchParams }: PageProps) {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="hidden md:block text-right">
-                    <p className="text-sm text-dark-200">{formatCurrency(order.total_price)}</p>
-                    <p className="text-xs text-dark-400">
-                      Dep: {formatCurrency(order.deposit_paid)}
+                    <p className="text-sm text-brand-800">{formatCurrency(order.total_price)}</p>
+                    <p className="text-xs text-brand-500">
+                      {t.deposit}: {formatCurrency(order.deposit_paid)}
                     </p>
                   </div>
                   <div className="hidden sm:block text-right">
-                    <p className="text-xs text-dark-400">{formatDate(order.order_date)}</p>
+                    <p className="text-xs text-brand-500">{formatDate(order.order_date)}</p>
                     {order.collection_date && (
-                      <p className="text-xs text-dark-500">
-                        Collect: {formatDate(order.collection_date)}
+                      <p className="text-xs text-brand-400">
+                        {t.collect}: {formatDate(order.collection_date)}
                       </p>
                     )}
                   </div>
                   <span className={`status-badge ${ORDER_STATUS_COLORS[order.status]}`}>
-                    {ORDER_STATUS_LABELS[order.status]}
+                    {dict.enums.orderStatus[order.status as keyof typeof dict.enums.orderStatus] ?? order.status}
                   </span>
-                  <ChevronRight className="w-4 h-4 text-dark-600 group-hover:text-gold transition-colors" />
+                  <ChevronRight className="w-4 h-4 text-brand-300 group-hover:text-accent transition-colors" />
                 </div>
               </Link>
             ))}

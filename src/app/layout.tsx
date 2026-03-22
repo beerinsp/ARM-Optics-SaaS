@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { Toaster } from "sonner";
+import { getLocale, getDict } from "@/lib/i18n";
+import { LocaleProvider } from "@/lib/i18n/context";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
+const manrope = Manrope({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-manrope",
 });
 
 export const metadata: Metadata = {
@@ -21,27 +18,31 @@ export const metadata: Metadata = {
   description: "Customer management platform for ARM Optics",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const dict = getDict(locale);
+
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.variable} ${playfair.variable} font-sans`}>
-        {children}
-        <Toaster
-          theme="dark"
-          toastOptions={{
-            classNames: {
-              toast: "bg-dark-800 border border-white/10 text-dark-100",
-              title: "text-dark-100",
-              description: "text-dark-400",
-              success: "border-green-500/30",
-              error: "border-red-500/30",
-            },
-          }}
-        />
+    <html lang={locale}>
+      <body className={`${manrope.variable} font-sans`}>
+        <LocaleProvider locale={locale} dict={dict}>
+          {children}
+          <Toaster
+            toastOptions={{
+              classNames: {
+                toast: "bg-white border border-brand-200 text-brand-900 shadow-md",
+                title: "text-brand-900",
+                description: "text-brand-500",
+                success: "border-green-200",
+                error: "border-red-200",
+              },
+            }}
+          />
+        </LocaleProvider>
       </body>
     </html>
   );

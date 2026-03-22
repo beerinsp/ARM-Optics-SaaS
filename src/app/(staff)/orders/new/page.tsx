@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { getLocale, getDict } from "@/lib/i18n";
 import { PageHeader } from "@/components/layout/PageHeader";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -12,6 +12,10 @@ interface PageProps {
 
 export default async function NewOrderPage({ searchParams }: PageProps) {
   const { customer: customerId } = await searchParams;
+  const locale = await getLocale();
+  const dict = getDict(locale);
+  const t = dict.orders;
+
   const supabase = await createClient();
 
   let defaultCustomer: Customer | null = null;
@@ -27,13 +31,13 @@ export default async function NewOrderPage({ searchParams }: PageProps) {
   return (
     <div>
       <div className="mb-4">
-        <Link href="/orders" className="inline-flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back to orders
+        <Link href="/orders" className="inline-flex items-center gap-1 text-sm text-brand-500 hover:text-brand-800 transition-colors">
+          <ArrowLeft className="w-4 h-4" /> {t.backToOrders2}
         </Link>
       </div>
       <PageHeader
-        title="New Order"
-        description="Create a new optical order"
+        title={t.newOrderTitle}
+        description={t.newOrderDescription}
       />
       <NewOrderClient defaultCustomer={defaultCustomer} />
     </div>

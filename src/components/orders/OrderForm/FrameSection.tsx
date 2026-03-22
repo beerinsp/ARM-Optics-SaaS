@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 interface FrameSectionProps {
   form: UseFormReturn<OrderFormValues>;
@@ -12,6 +13,8 @@ interface FrameSectionProps {
 
 export function FrameSection({ form }: FrameSectionProps) {
   const { register } = form;
+  const { dict } = useLocale();
+  const t = dict.orders;
 
   const {
     fields: serviceFields,
@@ -29,30 +32,30 @@ export function FrameSection({ form }: FrameSectionProps) {
     <div className="space-y-5">
       {/* Frame Details */}
       <div>
-        <h4 className="section-label mb-3">Frame</h4>
+        <h4 className="section-label mb-3">{t.frame}</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label>Brand</Label>
+            <Label>{t.frameBrand}</Label>
             <Input placeholder="e.g. Ray-Ban, Oakley, Silhouette" {...register("frame_brand")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Model / Style</Label>
+            <Label>{t.frameModel}</Label>
             <Input placeholder="e.g. RB2132 New Wayfarer" {...register("frame_model")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Colour</Label>
+            <Label>{t.frameColour}</Label>
             <Input placeholder="e.g. Matte Black, Tortoise" {...register("frame_colour")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Size</Label>
+            <Label>{t.frameSize}</Label>
             <Input placeholder="e.g. 52-18-145" {...register("frame_size")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Supplier</Label>
+            <Label>{t.frameSupplier}</Label>
             <Input placeholder="e.g. Luxottica, Safilo" {...register("frame_supplier")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Frame SKU (GenSoft)</Label>
+            <Label>{t.frameSku}</Label>
             <Input placeholder="Product code" {...register("frame_gensoft_sku")} />
           </div>
         </div>
@@ -61,7 +64,7 @@ export function FrameSection({ form }: FrameSectionProps) {
       {/* Services */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h4 className="section-label">Services</h4>
+          <h4 className="section-label">{t.services}</h4>
           <Button
             type="button"
             variant="ghost"
@@ -69,19 +72,19 @@ export function FrameSection({ form }: FrameSectionProps) {
             className="text-xs h-7"
             onClick={() => appendService({ name: "", price: 0 })}
           >
-            <Plus className="w-3.5 h-3.5" /> Add service
+            <Plus className="w-3.5 h-3.5" /> {t.addService}
           </Button>
         </div>
         <div className="space-y-2">
           {serviceFields.map((field, index) => (
             <div key={field.id} className="flex items-center gap-2">
               <Input
-                placeholder="Service name (e.g. Contact lens fitting)"
+                placeholder={t.serviceNamePlaceholder}
                 {...register(`services.${index}.name`)}
                 className="flex-1"
               />
               <div className="relative w-28">
-                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-dark-400 text-sm">$</span>
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-500 text-sm">$</span>
                 <Input
                   type="number"
                   step="0.01"
@@ -95,7 +98,7 @@ export function FrameSection({ form }: FrameSectionProps) {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="text-dark-500 hover:text-red-400 h-9 w-9 flex-shrink-0"
+                className="text-brand-400 hover:text-red-400 h-9 w-9 flex-shrink-0"
                 onClick={() => removeService(index)}
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -103,7 +106,7 @@ export function FrameSection({ form }: FrameSectionProps) {
             </div>
           ))}
           {serviceFields.length === 0 && (
-            <p className="text-xs text-dark-500 py-1">No services added.</p>
+            <p className="text-xs text-brand-400 py-1">{t.noServices}</p>
           )}
         </div>
       </div>
@@ -111,7 +114,7 @@ export function FrameSection({ form }: FrameSectionProps) {
       {/* Accessories */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h4 className="section-label">Accessories</h4>
+          <h4 className="section-label">{t.accessories}</h4>
           <Button
             type="button"
             variant="ghost"
@@ -119,7 +122,7 @@ export function FrameSection({ form }: FrameSectionProps) {
             className="text-xs h-7"
             onClick={() => appendAccessory({ name: "", sku: "", qty: 1, price: 0 })}
           >
-            <Plus className="w-3.5 h-3.5" /> Add accessory
+            <Plus className="w-3.5 h-3.5" /> {t.addAccessory}
           </Button>
         </div>
         <div className="space-y-2">
@@ -127,7 +130,7 @@ export function FrameSection({ form }: FrameSectionProps) {
             <div key={field.id} className="grid grid-cols-12 gap-2 items-center">
               <div className="col-span-5">
                 <Input
-                  placeholder="Item name (e.g. Case, Cloth)"
+                  placeholder={t.accessoryNamePlaceholder}
                   {...register(`accessories.${index}.name`)}
                 />
               </div>
@@ -146,7 +149,7 @@ export function FrameSection({ form }: FrameSectionProps) {
                 />
               </div>
               <div className="col-span-2 relative">
-                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-dark-400 text-sm">$</span>
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-500 text-sm">$</span>
                 <Input
                   type="number"
                   step="0.01"
@@ -161,7 +164,7 @@ export function FrameSection({ form }: FrameSectionProps) {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="text-dark-500 hover:text-red-400 h-9 w-9"
+                  className="text-brand-400 hover:text-red-400 h-9 w-9"
                   onClick={() => removeAccessory(index)}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -170,7 +173,7 @@ export function FrameSection({ form }: FrameSectionProps) {
             </div>
           ))}
           {accessoryFields.length === 0 && (
-            <p className="text-xs text-dark-500 py-1">No accessories added.</p>
+            <p className="text-xs text-brand-400 py-1">{t.noAccessories}</p>
           )}
         </div>
       </div>

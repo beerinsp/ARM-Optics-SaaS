@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Customer } from "@/types/database";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/lib/i18n/context";
 
 interface CustomerSearchBarProps {
   onSelect?: (customer: Customer) => void;
@@ -14,9 +15,11 @@ interface CustomerSearchBarProps {
 
 export function CustomerSearchBar({
   onSelect,
-  placeholder = "Search by name, phone, or email...",
   navigateOnSelect = true,
 }: CustomerSearchBarProps) {
+  const { dict } = useLocale();
+  const t = dict.search;
+
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
@@ -68,11 +71,11 @@ export function CustomerSearchBar({
   return (
     <div ref={containerRef} className="relative w-full max-w-xl">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-500" />
         <input
           type="text"
           className="input-base w-full pl-10 pr-4"
-          placeholder={placeholder}
+          placeholder={t.searchPlaceholder}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -81,24 +84,24 @@ export function CustomerSearchBar({
           onFocus={() => query.length >= 2 && setOpen(true)}
         />
         {loading && (
-          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400 animate-spin" />
+          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-500 animate-spin" />
         )}
       </div>
 
       {open && query.length >= 2 && (
-        <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-dark-800 border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+        <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-white border border-brand-200 rounded-xl shadow-2xl overflow-hidden">
           {results.length === 0 && !loading ? (
             <div className="p-4">
-              <p className="text-sm text-dark-400 mb-3">
-                No customers found for &ldquo;{query}&rdquo;
+              <p className="text-sm text-brand-500 mb-3">
+                {t.noCustomersFound} &ldquo;{query}&rdquo;
               </p>
               <Link
                 href={`/customers/new?prefill=${encodeURIComponent(query)}`}
-                className="flex items-center gap-2 text-sm text-gold hover:text-gold-light transition-colors"
+                className="flex items-center gap-2 text-sm text-accent hover:text-accent-light transition-colors"
                 onClick={() => setOpen(false)}
               >
                 <UserPlus className="w-4 h-4" />
-                Create new customer
+                {t.createNew}
               </Link>
             </div>
           ) : (
@@ -106,32 +109,32 @@ export function CustomerSearchBar({
               {results.map((customer) => (
                 <li key={customer.id}>
                   <button
-                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 transition-colors text-left"
+                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-brand-50 transition-colors text-left"
                     onClick={() => handleSelect(customer)}
                   >
                     <div>
-                      <p className="text-sm font-medium text-dark-100">
+                      <p className="text-sm font-medium text-brand-900">
                         {customer.first_name} {customer.last_name}
                       </p>
-                      <p className="text-xs text-dark-400">
+                      <p className="text-xs text-brand-500">
                         {customer.phone || customer.mobile}{" "}
                         {customer.email && `· ${customer.email}`}
                       </p>
                     </div>
-                    <span className="text-xs text-dark-500">
+                    <span className="text-xs text-brand-400">
                       {customer.suburb}
                     </span>
                   </button>
                 </li>
               ))}
-              <li className="border-t border-white/5 p-2">
+              <li className="border-t border-brand-100 p-2">
                 <Link
                   href="/customers/new"
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs text-dark-400 hover:text-gold transition-colors rounded"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs text-brand-500 hover:text-accent transition-colors rounded"
                   onClick={() => setOpen(false)}
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  Create new customer
+                  {t.createNew}
                 </Link>
               </li>
             </ul>

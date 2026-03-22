@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --radius: 0.5rem;
-  --background: 26 26 26;
-  --foreground: 240 240 240;
+  --radius: 0.375rem;
 }
 
 @layer base {
@@ -14,50 +12,45 @@
   }
 
   body {
-    @apply bg-dark-900 text-dark-100 antialiased;
+    @apply bg-brand-50 text-brand-900 antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display font-bold tracking-tight;
   }
 }
 
 @layer components {
   /* Card component */
   .card {
-    @apply bg-dark-800/60 border border-white/[0.06] rounded-xl backdrop-blur-sm;
+    @apply bg-white border border-brand-100 rounded-lg shadow-sm;
   }
 
   /* Input base */
   .input-base {
-    @apply bg-dark-900 border border-white/10 rounded-lg px-3 py-2 text-sm
-           text-dark-100 placeholder-dark-400
-           focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold/50
+    @apply bg-white border border-brand-200 rounded-md px-3 py-2 text-sm
+           text-brand-900 placeholder-brand-400
+           focus:outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-600
            transition-colors;
-  }
-
-  /* Gold gradient text */
-  .text-gold-gradient {
-    @apply bg-gradient-to-r from-gold-light to-gold bg-clip-text text-transparent;
   }
 
   /* Section label */
   .section-label {
-    @apply text-xs font-semibold uppercase tracking-widest text-dark-400;
+    @apply text-[10px] font-bold uppercase tracking-widest text-brand-400;
   }
 
   /* Rx grid cell */
   .rx-cell {
-    @apply bg-dark-900/80 border border-white/10 rounded px-2 py-1.5 text-sm text-center
-           text-dark-100 placeholder-dark-500
-           focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/40
+    @apply bg-white border border-brand-200 rounded px-2 py-1.5 text-sm text-center
+           text-brand-900 placeholder-brand-300
+           focus:outline-none focus:ring-1 focus:ring-brand-600/40 focus:border-brand-600
            w-full tabular-nums;
   }
 
   /* Status badge */
   .status-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border;
   }
 }
 
@@ -84,15 +77,15 @@
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-dark-900;
+  @apply bg-brand-50;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-dark-600 rounded-full;
+  @apply bg-brand-200 rounded-full;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-dark-500;
+  @apply bg-brand-300;
 }

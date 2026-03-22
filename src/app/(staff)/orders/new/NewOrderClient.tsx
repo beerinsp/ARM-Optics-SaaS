@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { type OrderFormValues, orderFormToDbValues } from "@/lib/validations/order";
 import type { Customer } from "@/types/database";
+import { useLocale } from "@/lib/i18n/context";
 
 interface Props {
   defaultCustomer: Customer | null;
@@ -12,6 +13,8 @@ interface Props {
 
 export function NewOrderClient({ defaultCustomer }: Props) {
   const router = useRouter();
+  const { dict } = useLocale();
+  const t = dict.orders;
 
   const handleSubmit = async (values: OrderFormValues) => {
     const supabase = createClient();
@@ -33,10 +36,10 @@ export function NewOrderClient({ defaultCustomer }: Props) {
       .single();
 
     if (error) {
-      toast.error("Failed to create order: " + error.message);
+      toast.error(`${t.orderCreateFailed}: ${error.message}`);
       return;
     }
-    toast.success(`Order ${data.order_number} created`);
+    toast.success(`${t.orderCreated} ${data.order_number}`);
     router.push(`/orders/${data.id}`);
   };
 
@@ -44,7 +47,7 @@ export function NewOrderClient({ defaultCustomer }: Props) {
     <OrderForm
       defaultCustomer={defaultCustomer}
       onSubmit={handleSubmit}
-      submitLabel="Create Order"
+      submitLabel={t.createOrder}
     />
   );
 }

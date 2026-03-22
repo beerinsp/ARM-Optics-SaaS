@@ -7,9 +7,12 @@ import { toast } from "sonner";
 import type { CustomerFormValues } from "@/lib/validations/customer";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useLocale } from "@/lib/i18n/context";
 
 export default function NewCustomerPage() {
   const router = useRouter();
+  const { dict } = useLocale();
+  const t = dict.customers;
 
   const handleSubmit = async (values: CustomerFormValues) => {
     const supabase = createClient();
@@ -26,26 +29,26 @@ export default function NewCustomerPage() {
       .single();
 
     if (error) {
-      toast.error("Failed to create customer: " + error.message);
+      toast.error(`${t.newCustomerTitle}: ${error.message}`);
       return;
     }
-    toast.success("Customer created successfully");
+    toast.success(t.newCustomerTitle);
     router.push(`/customers/${data.id}`);
   };
 
   return (
     <div>
       <div className="mb-4">
-        <Link href="/customers" className="inline-flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back to customers
+        <Link href="/customers" className="inline-flex items-center gap-1 text-sm text-brand-500 hover:text-brand-800 transition-colors">
+          <ArrowLeft className="w-4 h-4" /> {t.backToCustomers}
         </Link>
       </div>
       <PageHeader
-        title="New Customer"
-        description="Create a new customer profile"
+        title={t.newCustomerTitle}
+        description={t.newCustomerDescription}
       />
       <div className="max-w-3xl">
-        <CustomerForm onSubmit={handleSubmit} submitLabel="Create Customer" />
+        <CustomerForm onSubmit={handleSubmit} submitLabel={t.saveCustomer} />
       </div>
     </div>
   );

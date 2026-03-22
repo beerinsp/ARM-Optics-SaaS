@@ -9,6 +9,7 @@ import type { CustomerFormValues } from "@/lib/validations/customer";
 import type { Customer } from "@/types/database";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useLocale } from "@/lib/i18n/context";
 
 export default function EditCustomerPage() {
   const params = useParams<{ id: string }>();
@@ -16,6 +17,8 @@ export default function EditCustomerPage() {
   const router = useRouter();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
+  const { dict } = useLocale();
+  const t = dict.customers;
 
   useEffect(() => {
     const supabase = createClient();
@@ -54,17 +57,17 @@ export default function EditCustomerPage() {
       .eq("id", id);
 
     if (error) {
-      toast.error("Failed to update customer: " + error.message);
+      toast.error(`${t.editCustomerTitle}: ${error.message}`);
       return;
     }
-    toast.success("Customer updated");
+    toast.success(t.editCustomerTitle);
     router.push(`/customers/${id}`);
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-6 h-6 animate-spin text-dark-400" />
+        <Loader2 className="w-6 h-6 animate-spin text-brand-500" />
       </div>
     );
   }
@@ -76,20 +79,20 @@ export default function EditCustomerPage() {
       <div className="mb-4">
         <Link
           href={`/customers/${id}`}
-          className="inline-flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-brand-500 hover:text-brand-800 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to profile
+          <ArrowLeft className="w-4 h-4" /> {customer.first_name} {customer.last_name}
         </Link>
       </div>
       <PageHeader
-        title={`Edit — ${customer.first_name} ${customer.last_name}`}
-        description="Update customer profile details"
+        title={`${t.editCustomerTitle} — ${customer.first_name} ${customer.last_name}`}
+        description={t.editCustomerDescription}
       />
       <div className="max-w-3xl">
         <CustomerForm
           defaultValues={customer}
           onSubmit={handleSubmit}
-          submitLabel="Save Changes"
+          submitLabel={t.saveCustomer}
         />
       </div>
     </div>

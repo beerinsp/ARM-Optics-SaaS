@@ -4,10 +4,11 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import type { OrderStatus } from "@/types/database";
-import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "@/lib/utils";
+import { ORDER_STATUS_COLORS } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 interface Props {
   orderId: string;
@@ -18,6 +19,8 @@ export function OrderStatusUpdater({ orderId, currentStatus }: Props) {
   const [status, setStatus] = useState<OrderStatus>(currentStatus);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
+  const { dict } = useLocale();
+  const t = dict.orders;
 
   const handleUpdate = async () => {
     if (status === currentStatus) return;
@@ -30,9 +33,19 @@ export function OrderStatusUpdater({ orderId, currentStatus }: Props) {
       .eq("id", orderId);
 
     if (error) {
-      toast.error("Failed to update status");
+      toast.error(t.statusUpdateFailed);
     } else {
-      toast.success(`Status updated to ${ORDER_STATUS_LABELS[status]}`);
+      const statusLabel = dict.enums.orderStatus[status as keyof typeof dict.enums.orderStatus] ?? status;
+      toast.success(`${t.statusUpdatedTo} ${statusLabel}`);
+      if (status === "ready") {
+        const res = await fetch(`/api/orders/${orderId}/notify-ready`, { method: "POST" });
+        if (res.ok) {
+          toast.success(t.customerNotified);
+        } else {
+          const body = await res.json().catch(() => ({}));
+          toast.error(body.error ?? t.notificationFailed);
+        }
+      }
       router.refresh();
     }
     setSaving(false);
@@ -43,13 +56,15 @@ export function OrderStatusUpdater({ orderId, currentStatus }: Props) {
       <Select value={status} onValueChange={(v) => setStatus(v as OrderStatus)}>
         <SelectTrigger className="w-44">
           <div className={`status-badge ${ORDER_STATUS_COLORS[status]} mr-1`}>
-            {ORDER_STATUS_LABELS[status]}
+            {dict.enums.orderStatus[status as keyof typeof dict.enums.orderStatus] ?? status}
           </div>
         </SelectTrigger>
         <SelectContent>
-          {(Object.keys(ORDER_STATUS_LABELS) as OrderStatus[]).map((s) => (
+          {(Object.keys(dict.enums.orderStatus) as OrderStatus[]).map((s) => (
             <SelectItem key={s} value={s}>
-              <span className={`status-badge ${ORDER_STATUS_COLORS[s]}`}>{ORDER_STATUS_LABELS[s]}</span>
+              <span className={`status-badge ${ORDER_STATUS_COLORS[s]}`}>
+                {dict.enums.orderStatus[s as keyof typeof dict.enums.orderStatus]}
+              </span>
             </SelectItem>
           ))}
         </SelectContent>
@@ -57,7 +72,7 @@ export function OrderStatusUpdater({ orderId, currentStatus }: Props) {
       {status !== currentStatus && (
         <Button size="sm" onClick={handleUpdate} disabled={saving}>
           <CheckCircle className="w-3.5 h-3.5" />
-          {saving ? "Saving..." : "Update"}
+          {saving ? t.statusSaving : t.updateStatus}
         </Button>
       )}
     </div>

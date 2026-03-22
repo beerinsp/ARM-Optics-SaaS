@@ -5,22 +5,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold tracking-tight transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900/40 disabled:pointer-events-none disabled:opacity-40",
   {
     variants: {
       variant: {
+        // Charcoal/black — primary brand action
         default:
-          "bg-gold text-dark-950 hover:bg-gold-light shadow-sm shadow-gold/20",
+          "bg-brand-900 text-white hover:bg-brand-700 shadow-sm",
+        // Red — logo accent, use for key CTAs
+        accent:
+          "bg-accent text-white hover:bg-accent-dark shadow-sm",
+        // Outlined charcoal
         outline:
-          "border border-white/10 bg-transparent text-dark-200 hover:bg-white/5 hover:border-white/20",
+          "border border-brand-200 bg-white text-brand-800 hover:bg-brand-50 hover:border-brand-400",
         ghost:
-          "text-dark-300 hover:bg-white/5 hover:text-dark-100",
+          "text-brand-600 hover:bg-brand-50 hover:text-brand-900",
         destructive:
-          "bg-red-600/80 text-white hover:bg-red-600 border border-red-500/30",
+          "bg-red-600 text-white hover:bg-red-700 shadow-sm",
         secondary:
-          "bg-dark-700 text-dark-200 hover:bg-dark-600 border border-white/5",
+          "bg-brand-100 text-brand-800 hover:bg-brand-200 border border-brand-200",
         link:
-          "text-gold underline-offset-4 hover:underline p-0 h-auto",
+          "text-brand-700 underline-offset-4 hover:underline p-0 h-auto font-medium",
       },
       size: {
         default: "h-9 px-4 py-2",

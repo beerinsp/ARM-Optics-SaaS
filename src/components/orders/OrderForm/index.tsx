@@ -9,9 +9,10 @@ import { LensSection } from "./LensSection";
 import { FrameSection } from "./FrameSection";
 import { PricingSection } from "./PricingSection";
 import { CustomerSearchBar } from "@/components/customers/CustomerSearchBar";
-import { Save, Loader2, User } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
 import type { Customer, Order } from "@/types/database";
 import { useState } from "react";
+import { useLocale } from "@/lib/i18n/context";
 
 interface OrderFormProps {
   defaultCustomer?: Customer | null;
@@ -20,7 +21,10 @@ interface OrderFormProps {
   submitLabel?: string;
 }
 
-export function OrderForm({ defaultCustomer, defaultValues, onSubmit, submitLabel = "Save Order" }: OrderFormProps) {
+export function OrderForm({ defaultCustomer, defaultValues, onSubmit, submitLabel }: OrderFormProps) {
+  const { dict } = useLocale();
+  const t = dict.orders;
+
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(defaultCustomer ?? null);
   const today = new Date().toISOString().split("T")[0];
 
@@ -67,6 +71,7 @@ export function OrderForm({ defaultCustomer, defaultValues, onSubmit, submitLabe
   });
 
   const { handleSubmit, setValue, formState: { isSubmitting, errors } } = form;
+  const resolvedSubmitLabel = submitLabel ?? t.saveOrder;
 
   const handleCustomerSelect = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -77,20 +82,20 @@ export function OrderForm({ defaultCustomer, defaultValues, onSubmit, submitLabe
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Customer Selection */}
       <div className="card p-5">
-        <h3 className="text-sm font-semibold text-dark-200 mb-4 pb-2 border-b border-white/[0.06]">
-          Customer
+        <h3 className="text-sm font-semibold text-brand-800 mb-4 pb-2 border-b border-brand-100">
+          {t.customerSection}
         </h3>
         {selectedCustomer ? (
-          <div className="flex items-center justify-between p-3 bg-dark-900/60 rounded-lg border border-white/[0.06]">
+          <div className="flex items-center justify-between p-3 bg-brand-50 rounded-lg border border-brand-100">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-sm font-medium text-dark-300">
+              <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-sm font-medium text-brand-700">
                 {selectedCustomer.first_name[0]}{selectedCustomer.last_name[0]}
               </div>
               <div>
-                <p className="text-sm font-medium text-dark-100">
+                <p className="text-sm font-medium text-brand-900">
                   {selectedCustomer.first_name} {selectedCustomer.last_name}
                 </p>
-                <p className="text-xs text-dark-400">
+                <p className="text-xs text-brand-500">
                   {selectedCustomer.phone || selectedCustomer.mobile}
                   {selectedCustomer.email && ` · ${selectedCustomer.email}`}
                 </p>
@@ -102,18 +107,17 @@ export function OrderForm({ defaultCustomer, defaultValues, onSubmit, submitLabe
                 setSelectedCustomer(null);
                 setValue("customer_id", "");
               }}
-              className="text-xs text-dark-500 hover:text-red-400 transition-colors"
+              className="text-xs text-brand-400 hover:text-red-400 transition-colors"
             >
-              Change
+              {t.changeCustomer}
             </button>
           </div>
         ) : (
           <div className="space-y-2">
-            <Label>Search for customer</Label>
+            <Label>{t.searchCustomer}</Label>
             <CustomerSearchBar
               navigateOnSelect={false}
               onSelect={handleCustomerSelect}
-              placeholder="Search by name, phone, or email..."
             />
             {errors.customer_id && (
               <p className="text-xs text-red-400">{errors.customer_id.message}</p>
@@ -125,10 +129,10 @@ export function OrderForm({ defaultCustomer, defaultValues, onSubmit, submitLabe
       {/* Order Form Tabs */}
       <Tabs defaultValue="prescription" className="space-y-4">
         <TabsList className="w-full sm:w-auto">
-          <TabsTrigger value="prescription">Prescription & Lenses</TabsTrigger>
-          <TabsTrigger value="frame">Frame & Accessories</TabsTrigger>
-          <TabsTrigger value="pricing">Pricing & Lab</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
+          <TabsTrigger value="prescription">{t.tabPrescription}</TabsTrigger>
+          <TabsTrigger value="frame">{t.tabFrame}</TabsTrigger>
+          <TabsTrigger value="pricing">{t.tabPricing}</TabsTrigger>
+          <TabsTrigger value="notes">{t.tabNotes}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="prescription">
@@ -152,18 +156,18 @@ export function OrderForm({ defaultCustomer, defaultValues, onSubmit, submitLabe
         <TabsContent value="notes">
           <div className="card p-5 space-y-4">
             <div className="space-y-1.5">
-              <Label>Customer Notes</Label>
+              <Label>{t.customerNotesLabel}</Label>
               <textarea
                 className="input-base w-full h-28 resize-none"
-                placeholder="Notes visible to the customer..."
+                placeholder={t.customerNotesFormPlaceholder}
                 {...form.register("notes")}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Internal Notes</Label>
+              <Label>{t.internalNotesLabel}</Label>
               <textarea
                 className="input-base w-full h-28 resize-none"
-                placeholder="Staff-only notes (not shown to customer)..."
+                placeholder={t.internalNotesPlaceholder}
                 {...form.register("internal_notes")}
               />
             </div>
@@ -174,9 +178,9 @@ export function OrderForm({ defaultCustomer, defaultValues, onSubmit, submitLabe
       <div className="flex justify-end">
         <Button type="submit" disabled={isSubmitting} size="lg">
           {isSubmitting ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+            <><Loader2 className="w-4 h-4 animate-spin" /> {dict.common.saving}</>
           ) : (
-            <><Save className="w-4 h-4" /> {submitLabel}</>
+            <><Save className="w-4 h-4" /> {resolvedSubmitLabel}</>
           )}
         </Button>
       </div>

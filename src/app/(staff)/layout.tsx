@@ -24,12 +24,12 @@ export default async function StaffLayout({
     .single();
 
   if (!staffProfile || !staffProfile.is_active) {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     redirect("/login?error=not_staff");
   }
 
   return (
-    <div className="min-h-screen bg-dark-900 flex">
+    <div className="min-h-screen bg-brand-50 flex">
       <Sidebar />
       <main className="flex-1 ml-60 min-h-screen">
         <div className="max-w-7xl mx-auto p-6 lg:p-8">

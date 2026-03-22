@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { getLocale, getDict } from "@/lib/i18n";
 import { notFound } from "next/navigation";
-import { formatDate, formatCurrency, formatRxValue, ORDER_STATUS_LABELS } from "@/lib/utils";
+import { formatDate, formatCurrency, formatRxValue, ORDER_STATUS_COLORS } from "@/lib/utils";
 import type { OrderWithDetails } from "@/types/database";
 
 interface PageProps {
@@ -9,6 +10,10 @@ interface PageProps {
 
 export default async function PrintOrderPage({ params }: PageProps) {
   const { id } = await params;
+  const locale = await getLocale();
+  const dict = getDict(locale);
+  const t = dict.print;
+
   const supabase = await createClient();
 
   const { data: order } = await supabase
@@ -29,15 +34,15 @@ export default async function PrintOrderPage({ params }: PageProps) {
       <div className="no-print fixed top-4 right-4 z-50 flex gap-2">
         <button
           onClick={() => window.print()}
-          className="px-4 py-2 bg-dark-800 border border-white/10 rounded-lg text-sm text-dark-200 hover:bg-dark-700 transition-colors"
+          className="px-4 py-2 bg-white border border-brand-200 rounded-lg text-sm text-brand-800 hover:bg-brand-100 transition-colors"
         >
-          Print / Save PDF
+          {t.printSavePdf}
         </button>
         <button
           onClick={() => window.close()}
-          className="px-4 py-2 bg-dark-800 border border-white/10 rounded-lg text-sm text-dark-400 hover:bg-dark-700 transition-colors"
+          className="px-4 py-2 bg-white border border-brand-200 rounded-lg text-sm text-brand-500 hover:bg-brand-100 transition-colors"
         >
-          Close
+          {t.close}
         </button>
       </div>
 
@@ -51,13 +56,13 @@ export default async function PrintOrderPage({ params }: PageProps) {
           <div className="flex items-start justify-between mb-6 pb-4 border-b-2 border-gray-800">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-gray-900">ARM OPTICS</h1>
-              <p className="text-xs text-gray-500 mt-0.5">Optical Order Form</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t.opticalOrderForm}</p>
             </div>
             <div className="text-right">
               <p className="text-xl font-bold tabular-nums text-gray-800">{o.order_number}</p>
               <p className="text-xs text-gray-500">{formatDate(o.order_date)}</p>
               <p className="text-xs font-semibold mt-1 uppercase tracking-wide text-gray-700">
-                {ORDER_STATUS_LABELS[o.status]}
+                {dict.enums.orderStatus[o.status as keyof typeof dict.enums.orderStatus] ?? o.status}
               </p>
             </div>
           </div>
@@ -66,7 +71,7 @@ export default async function PrintOrderPage({ params }: PageProps) {
           <div className="grid grid-cols-2 gap-6 mb-5">
             {/* Customer */}
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Customer</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">{t.customer}</p>
               <p className="font-bold text-gray-900">{c.first_name} {c.last_name}</p>
               {(c.phone || c.mobile) && <p className="text-sm text-gray-700">{c.phone || c.mobile}</p>}
               {c.email && <p className="text-sm text-gray-600">{c.email}</p>}
@@ -76,7 +81,7 @@ export default async function PrintOrderPage({ params }: PageProps) {
                 </p>
               )}
               {c.medicare_number && (
-                <p className="text-xs text-gray-500 mt-1">Medicare: {c.medicare_number}</p>
+                <p className="text-xs text-gray-500 mt-1">{t.medicare}: {c.medicare_number}</p>
               )}
               {c.health_fund_name && (
                 <p className="text-xs text-gray-500">
@@ -87,20 +92,20 @@ export default async function PrintOrderPage({ params }: PageProps) {
 
             {/* Pricing */}
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Pricing</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">{t.pricing}</p>
               <div className="border border-gray-300 rounded overflow-hidden">
                 <table className="w-full text-sm">
                   <tbody>
                     <tr className="border-b border-gray-200">
-                      <td className="py-1.5 px-3 text-gray-600">Total Price</td>
+                      <td className="py-1.5 px-3 text-gray-600">{t.totalPrice}</td>
                       <td className="py-1.5 px-3 text-right font-semibold">{formatCurrency(o.total_price)}</td>
                     </tr>
                     <tr className="border-b border-gray-200">
-                      <td className="py-1.5 px-3 text-gray-600">Deposit Paid</td>
+                      <td className="py-1.5 px-3 text-gray-600">{t.depositPaid}</td>
                       <td className="py-1.5 px-3 text-right">{formatCurrency(o.deposit_paid)}</td>
                     </tr>
                     <tr className="bg-gray-50">
-                      <td className="py-1.5 px-3 font-bold text-gray-800">Balance Due</td>
+                      <td className="py-1.5 px-3 font-bold text-gray-800">{t.balanceDue}</td>
                       <td className="py-1.5 px-3 text-right font-bold text-gray-900">{formatCurrency(balance)}</td>
                     </tr>
                   </tbody>
@@ -108,7 +113,7 @@ export default async function PrintOrderPage({ params }: PageProps) {
               </div>
               {o.collection_date && (
                 <p className="text-xs text-gray-500 mt-2">
-                  Est. collection: <strong>{formatDate(o.collection_date)}</strong>
+                  {t.estCollection}: <strong>{formatDate(o.collection_date)}</strong>
                 </p>
               )}
             </div>
@@ -116,7 +121,7 @@ export default async function PrintOrderPage({ params }: PageProps) {
 
           {/* Prescription */}
           <div className="mb-5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Spectacle Prescription</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">{t.spectaclePrescription}</p>
             <table className="w-full border border-gray-300 text-sm text-center rounded overflow-hidden">
               <thead className="bg-gray-100">
                 <tr>
@@ -151,31 +156,31 @@ export default async function PrintOrderPage({ params }: PageProps) {
               </tbody>
             </table>
             {o.pd_single && (
-              <p className="text-xs text-gray-500 mt-1">Single PD: {o.pd_single}</p>
+              <p className="text-xs text-gray-500 mt-1">{t.singlePd}: {o.pd_single}</p>
             )}
           </div>
 
           {/* Frame & Lenses side by side */}
           <div className="grid grid-cols-2 gap-4 mb-5">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Frame</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">{t.frame}</p>
               <div className="border border-gray-300 rounded p-3 text-sm">
                 {o.frame_brand && <p className="font-semibold">{o.frame_brand}</p>}
                 {o.frame_model && <p className="text-gray-700">{o.frame_model}</p>}
                 {o.frame_colour && <p className="text-gray-600">{o.frame_colour}</p>}
                 {o.frame_size && <p className="text-gray-500 text-xs">{o.frame_size}</p>}
-                {o.frame_supplier && <p className="text-gray-500 text-xs">Supplier: {o.frame_supplier}</p>}
+                {o.frame_supplier && <p className="text-gray-500 text-xs">{t.supplier}: {o.frame_supplier}</p>}
                 {o.frame_gensoft_sku && <p className="text-gray-400 text-xs">SKU: {o.frame_gensoft_sku}</p>}
                 {!o.frame_brand && !o.frame_model && <p className="text-gray-400">—</p>}
               </div>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Lenses</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">{t.lenses}</p>
               <div className="border border-gray-300 rounded p-3 text-sm">
                 {o.lens_type && <p className="font-semibold">{o.lens_type}</p>}
                 {o.lens_material && <p className="text-gray-700">{o.lens_material}</p>}
                 {o.lens_coating && <p className="text-gray-600">{o.lens_coating}</p>}
-                {o.lens_supplier && <p className="text-gray-500 text-xs">Supplier: {o.lens_supplier}</p>}
+                {o.lens_supplier && <p className="text-gray-500 text-xs">{t.supplier}: {o.lens_supplier}</p>}
                 {o.lens_gensoft_sku && <p className="text-gray-400 text-xs">SKU: {o.lens_gensoft_sku}</p>}
                 {!o.lens_type && !o.lens_material && <p className="text-gray-400">—</p>}
               </div>
@@ -185,13 +190,13 @@ export default async function PrintOrderPage({ params }: PageProps) {
           {/* Services & Accessories */}
           {((o.services && o.services.length > 0) || (o.accessories && o.accessories.length > 0)) && (
             <div className="mb-5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Services & Accessories</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">{t.servicesAccessories}</p>
               <table className="w-full border border-gray-300 text-sm rounded overflow-hidden">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="py-1.5 px-3 text-left text-gray-600 font-semibold border-r border-gray-300">Item</th>
-                    <th className="py-1.5 px-3 text-center text-gray-600 font-semibold border-r border-gray-300 w-16">Qty</th>
-                    <th className="py-1.5 px-3 text-right text-gray-600 font-semibold w-24">Price</th>
+                    <th className="py-1.5 px-3 text-left text-gray-600 font-semibold border-r border-gray-300">{t.item}</th>
+                    <th className="py-1.5 px-3 text-center text-gray-600 font-semibold border-r border-gray-300 w-16">{t.qty}</th>
+                    <th className="py-1.5 px-3 text-right text-gray-600 font-semibold w-24">{t.price}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -217,7 +222,7 @@ export default async function PrintOrderPage({ params }: PageProps) {
           {/* Notes */}
           {o.notes && (
             <div className="mb-5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Notes</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t.notes}</p>
               <p className="text-sm text-gray-700 whitespace-pre-wrap border border-gray-200 rounded p-2">{o.notes}</p>
             </div>
           )}
@@ -225,10 +230,10 @@ export default async function PrintOrderPage({ params }: PageProps) {
           {/* Lab */}
           {(o.lab_name || o.lab_order_ref) && (
             <div className="mb-5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Laboratory</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t.laboratory}</p>
               <p className="text-sm text-gray-700">
-                {o.lab_name} {o.lab_order_ref && `· Ref: ${o.lab_order_ref}`}
-                {o.lab_sent_date && ` · Sent: ${formatDate(o.lab_sent_date)}`}
+                {o.lab_name} {o.lab_order_ref && `· ${t.labRef}: ${o.lab_order_ref}`}
+                {o.lab_sent_date && ` · ${t.labSent}: ${formatDate(o.lab_sent_date)}`}
               </p>
             </div>
           )}
@@ -236,14 +241,14 @@ export default async function PrintOrderPage({ params }: PageProps) {
           {/* Signature */}
           <div className="mt-8 pt-4 border-t border-gray-300 grid grid-cols-2 gap-8">
             <div>
-              <p className="text-xs text-gray-500 mb-6">Customer Signature</p>
+              <p className="text-xs text-gray-500 mb-6">{t.customerSignature}</p>
               <div className="border-b border-gray-400 w-full" />
-              <p className="text-xs text-gray-400 mt-1">Signature / Date</p>
+              <p className="text-xs text-gray-400 mt-1">{t.signatureDate}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-6">Staff Authorisation</p>
+              <p className="text-xs text-gray-500 mb-6">{t.staffAuthorisation}</p>
               <div className="border-b border-gray-400 w-full" />
-              <p className="text-xs text-gray-400 mt-1">Signature / Date</p>
+              <p className="text-xs text-gray-400 mt-1">{t.signatureDate}</p>
             </div>
           </div>
 
@@ -253,7 +258,7 @@ export default async function PrintOrderPage({ params }: PageProps) {
           <div className="mt-8 pt-2">
             <div className="flex items-center gap-2 mb-3">
               <div className="flex-1 border-t-2 border-dashed border-gray-400" />
-              <p className="text-xs text-gray-400 font-medium px-2">✂  CUSTOMER RECEIPT</p>
+              <p className="text-xs text-gray-400 font-medium px-2">✂  {t.customerReceipt}</p>
               <div className="flex-1 border-t-2 border-dashed border-gray-400" />
             </div>
 
@@ -261,7 +266,7 @@ export default async function PrintOrderPage({ params }: PageProps) {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <h2 className="font-bold text-gray-900 text-lg">ARM OPTICS</h2>
-                  <p className="text-xs text-gray-500">Customer Receipt</p>
+                  <p className="text-xs text-gray-500">{t.receiptTitle}</p>
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-gray-800 tabular-nums">{o.order_number}</p>
@@ -275,31 +280,31 @@ export default async function PrintOrderPage({ params }: PageProps) {
                   {(c.phone || c.mobile) && <p className="text-gray-600">{c.phone || c.mobile}</p>}
                 </div>
                 <div className="text-right">
-                  <p className="text-gray-600">Total: <strong>{formatCurrency(o.total_price)}</strong></p>
-                  <p className="text-gray-600">Deposit: {formatCurrency(o.deposit_paid)}</p>
-                  <p className="font-bold text-gray-800">Balance: {formatCurrency(balance)}</p>
+                  <p className="text-gray-600">{t.total}: <strong>{formatCurrency(o.total_price)}</strong></p>
+                  <p className="text-gray-600">{t.deposit}: {formatCurrency(o.deposit_paid)}</p>
+                  <p className="font-bold text-gray-800">{t.balance}: {formatCurrency(balance)}</p>
                 </div>
               </div>
 
               {o.frame_brand && (
                 <p className="text-xs text-gray-500">
-                  Frame: {o.frame_brand} {o.frame_model} {o.frame_colour && `· ${o.frame_colour}`}
+                  {t.frame}: {o.frame_brand} {o.frame_model} {o.frame_colour && `· ${o.frame_colour}`}
                 </p>
               )}
               {o.lens_type && (
                 <p className="text-xs text-gray-500">
-                  Lenses: {o.lens_type} {o.lens_material && `· ${o.lens_material}`}
+                  {t.lenses}: {o.lens_type} {o.lens_material && `· ${o.lens_material}`}
                 </p>
               )}
               {o.collection_date && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Est. ready: <strong>{formatDate(o.collection_date)}</strong>
+                  {t.estReady}: <strong>{formatDate(o.collection_date)}</strong>
                 </p>
               )}
 
               <div className="mt-3 pt-2 border-t border-gray-200">
                 <p className="text-xs text-gray-400 text-center">
-                  Please retain this receipt. Bring it when collecting your order.
+                  {t.retainReceipt}
                 </p>
               </div>
             </div>

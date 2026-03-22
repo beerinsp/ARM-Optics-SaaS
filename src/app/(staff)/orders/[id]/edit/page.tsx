@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getLocale, getDict } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import Link from "next/link";
@@ -12,8 +13,11 @@ interface PageProps {
 
 export default async function EditOrderPage({ params }: PageProps) {
   const { id } = await params;
-  const supabase = await createClient();
+  const locale = await getLocale();
+  const dict = getDict(locale);
+  const t = dict.orders;
 
+  const supabase = await createClient();
   const { data: order } = await supabase
     .from("orders")
     .select("*, customers(*), prescriptions(*)")
@@ -29,14 +33,14 @@ export default async function EditOrderPage({ params }: PageProps) {
       <div className="mb-4">
         <Link
           href={`/orders/${id}`}
-          className="inline-flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-brand-500 hover:text-brand-800 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to order
+          <ArrowLeft className="w-4 h-4" /> {t.backToOrders}
         </Link>
       </div>
       <PageHeader
-        title={`Edit — ${o.order_number}`}
-        description={`Update order details`}
+        title={`${t.editOrderTitle} — ${o.order_number}`}
+        description={t.editOrderDescription}
       />
       <EditOrderClient order={o} />
     </div>

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { type OrderFormValues, orderFormToDbValues } from "@/lib/validations/order";
 import type { OrderWithDetails } from "@/types/database";
+import { useLocale } from "@/lib/i18n/context";
 
 interface Props {
   order: OrderWithDetails;
@@ -12,6 +13,8 @@ interface Props {
 
 export function EditOrderClient({ order }: Props) {
   const router = useRouter();
+  const { dict } = useLocale();
+  const t = dict.orders;
 
   const handleSubmit = async (values: OrderFormValues) => {
     const supabase = createClient();
@@ -33,10 +36,10 @@ export function EditOrderClient({ order }: Props) {
       .eq("id", order.id);
 
     if (error) {
-      toast.error("Failed to update order: " + error.message);
+      toast.error(`${t.orderUpdateFailed}: ${error.message}`);
       return;
     }
-    toast.success("Order updated");
+    toast.success(t.orderUpdated);
     router.push(`/orders/${order.id}`);
     router.refresh();
   };
@@ -46,7 +49,7 @@ export function EditOrderClient({ order }: Props) {
       defaultCustomer={order.customers}
       defaultValues={order}
       onSubmit={handleSubmit}
-      submitLabel="Save Changes"
+      submitLabel={t.saveChanges}
     />
   );
 }
