@@ -42,25 +42,51 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 h-full w-60 bg-white border-r border-brand-100 flex flex-col z-30">
 
       {/* Logo */}
-      <div className="px-5 py-4 border-b border-brand-100">
-        <div className="flex items-end gap-1.5 leading-none">
-          <span
-            className="text-[28px] tracking-tight text-brand-600"
-            style={{ fontFamily: "var(--font-barlow)", fontWeight: 900, lineHeight: 1 }}
-          >
+      <div className="px-5 py-5 border-b border-brand-100">
+        {/* Wordmark — mirrors the ARM Optics brand logo */}
+        <div className="flex items-end leading-none select-none">
+          {/* "arm" — heavy condensed, dominates like in the logo */}
+          <span style={{
+            fontFamily: "var(--font-barlow)",
+            fontWeight: 900,
+            fontSize: 33,
+            lineHeight: 1,
+            color: "#454545",
+            letterSpacing: "-0.5px",
+          }}>
             arm
           </span>
-          <svg viewBox="0 0 9 20" style={{ height: 17, width: "auto", flexShrink: 0, marginBottom: 2 }} fill="none">
-            <polygon points="0,18 7,0 9,1 2,19" fill="#d93226" />
+
+          {/* Red parallelogram slash — the brand accent */}
+          <svg viewBox="0 0 14 28" fill="none"
+            style={{ height: 24, width: "auto", flexShrink: 0, marginLeft: 6, marginRight: 6, marginBottom: 1 }}>
+            <polygon points="5,0 13,0 9,28 1,28" fill="#d93226" />
           </svg>
-          <span
-            className="text-[16px] tracking-[0.18em] text-brand-500 uppercase"
-            style={{ fontFamily: "var(--font-barlow)", fontWeight: 300, lineHeight: 1, marginBottom: 2 }}
-          >
-            Optics
+
+          {/* "OPTICS" — light condensed, wide tracking */}
+          <span style={{
+            fontFamily: "var(--font-barlow)",
+            fontWeight: 300,
+            fontSize: 18,
+            lineHeight: 1,
+            color: "#636363",
+            letterSpacing: "3px",
+            textTransform: "uppercase",
+            paddingBottom: 3,
+          }}>
+            optics
           </span>
         </div>
-        <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-brand-400 mt-1.5">
+
+        {/* Subline */}
+        <p style={{
+          fontSize: 8,
+          fontWeight: 700,
+          letterSpacing: "0.28em",
+          textTransform: "uppercase",
+          color: "#a0a0a0",
+          marginTop: 7,
+        }}>
           CRM Platform
         </p>
       </div>
