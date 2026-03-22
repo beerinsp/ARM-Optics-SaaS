@@ -44,13 +44,19 @@ export function Sidebar() {
       {/* Logo */}
       <div className="px-5 py-4 border-b border-brand-100">
         <div className="flex items-end gap-1.5 leading-none">
-          <span className="text-[27px] font-black tracking-tight text-brand-600" style={{ lineHeight: 1 }}>
+          <span
+            className="text-[28px] tracking-tight text-brand-600"
+            style={{ fontFamily: "var(--font-barlow)", fontWeight: 900, lineHeight: 1 }}
+          >
             arm
           </span>
           <svg viewBox="0 0 9 20" style={{ height: 17, width: "auto", flexShrink: 0, marginBottom: 2 }} fill="none">
             <polygon points="0,18 7,0 9,1 2,19" fill="#d93226" />
           </svg>
-          <span className="text-[14px] font-extralight tracking-[0.16em] text-brand-500 uppercase" style={{ lineHeight: 1, marginBottom: 2 }}>
+          <span
+            className="text-[16px] tracking-[0.18em] text-brand-500 uppercase"
+            style={{ fontFamily: "var(--font-barlow)", fontWeight: 300, lineHeight: 1, marginBottom: 2 }}
+          >
             Optics
           </span>
         </div>
