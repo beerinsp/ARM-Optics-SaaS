@@ -1,32 +1,33 @@
-import { createClient } from "@/lib/supabase/server";
-import { getLocale, getDict } from "@/lib/i18n";
+import { createClient, getCachedUser } from "@/lib/supabase/server";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import { redirect } from "next/navigation";
 import { formatDate, formatCurrency, ORDER_STATUS_COLORS } from "@/lib/utils";
 import type { Order } from "@/types/database";
 import { ShoppingBag } from "lucide-react";
 
 export default async function PortalOrdersPage() {
-  const locale = await getLocale();
+  // Resolve user, client, and locale in parallel (getCachedUser is instant — shared with layout).
+  const [{ data: { user } }, supabase, locale] = await Promise.all([
+    getCachedUser(),
+    createClient(),
+    getLocale(),
+  ]);
   const dict = getDict(locale);
   const t = dict.portal;
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/portal-login");
 
-  const { data: customer } = await supabase
-    .from("customers")
-    .select("id")
-    .eq("portal_user_id", user.id)
-    .single();
+  // Customer lookup (for the "not linked" redirect check) and orders query run in parallel.
+  // The RLS policy `orders_select_portal` enforces customer isolation via
+  // get_customer_id_for_portal_user(), so the orders query is safe without an explicit
+  // customer_id filter — the DB handles it.
+  const [{ data: customer }, { data: orders }] = await Promise.all([
+    supabase.from("customers").select("id").eq("portal_user_id", user.id).single(),
+    supabase.from("orders").select("*").order("created_at", { ascending: false }),
+  ]);
 
   if (!customer) redirect("/portal");
-
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("customer_id", customer.id)
-    .order("created_at", { ascending: false });
 
   return (
     <div>

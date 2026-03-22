@@ -1,32 +1,32 @@
-import { createClient } from "@/lib/supabase/server";
-import { getLocale, getDict } from "@/lib/i18n";
+import { createClient, getCachedUser } from "@/lib/supabase/server";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import { redirect } from "next/navigation";
 import { formatDate, formatRxValue } from "@/lib/utils";
 import type { Prescription } from "@/types/database";
 import { Eye } from "lucide-react";
 
 export default async function PortalPrescriptionsPage() {
-  const locale = await getLocale();
+  // Resolve user, client, and locale in parallel (getCachedUser is instant — shared with layout).
+  const [{ data: { user } }, supabase, locale] = await Promise.all([
+    getCachedUser(),
+    createClient(),
+    getLocale(),
+  ]);
   const dict = getDict(locale);
   const t = dict.portal;
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/portal-login");
 
-  const { data: customer } = await supabase
-    .from("customers")
-    .select("id")
-    .eq("portal_user_id", user.id)
-    .single();
+  // Customer lookup (for the "not linked" redirect check) and prescriptions query run in parallel.
+  // The RLS policy `prescriptions_select_portal` enforces customer isolation via
+  // get_customer_id_for_portal_user(), so no explicit customer_id filter is needed.
+  const [{ data: customer }, { data: prescriptions }] = await Promise.all([
+    supabase.from("customers").select("id").eq("portal_user_id", user.id).single(),
+    supabase.from("prescriptions").select("*").order("exam_date", { ascending: false }),
+  ]);
 
   if (!customer) redirect("/portal");
-
-  const { data: prescriptions } = await supabase
-    .from("prescriptions")
-    .select("*")
-    .eq("customer_id", customer.id)
-    .order("exam_date", { ascending: false });
 
   return (
     <div>

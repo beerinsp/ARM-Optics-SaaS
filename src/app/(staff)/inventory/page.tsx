@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { getLocale, getDict } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Package, Search } from "lucide-react";
@@ -28,13 +29,16 @@ export default async function InventoryPage({ searchParams }: PageProps) {
     query = query.or(`name.ilike.%${q}%,sku.ilike.%${q}%,supplier.ilike.%${q}%`);
   }
 
-  const { data: products } = await query;
-  const { data: lastSync } = await supabase
-    .from("gensoft_products")
-    .select("synced_at")
-    .order("synced_at", { ascending: false })
-    .limit(1)
-    .single();
+  // Run products list and last-sync timestamp in parallel — they are independent.
+  const [{ data: products }, { data: lastSync }] = await Promise.all([
+    query,
+    supabase
+      .from("gensoft_products")
+      .select("synced_at")
+      .order("synced_at", { ascending: false })
+      .limit(1)
+      .single(),
+  ]);
 
   return (
     <div>

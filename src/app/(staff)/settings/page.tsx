@@ -1,26 +1,24 @@
-import { createClient } from "@/lib/supabase/server";
-import { getLocale, getDict } from "@/lib/i18n";
+import { createClient, getCachedUser } from "@/lib/supabase/server";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { formatDate } from "@/lib/utils";
 import type { StaffProfile } from "@/types/database";
 
 export default async function SettingsPage() {
-  const locale = await getLocale();
+  const [{ data: { user } }, supabase, locale] = await Promise.all([
+    getCachedUser(),
+    createClient(),
+    getLocale(),
+  ]);
   const dict = getDict(locale);
   const t = dict.settings;
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
-    .from("staff_profiles")
-    .select("*")
-    .eq("id", user?.id ?? "")
-    .single();
-
-  const { data: allStaff } = await supabase
-    .from("staff_profiles")
-    .select("*")
-    .order("full_name");
+  // Both profile queries are independent — run in parallel.
+  const [{ data: profile }, { data: allStaff }] = await Promise.all([
+    supabase.from("staff_profiles").select("*").eq("id", user?.id ?? "").single(),
+    supabase.from("staff_profiles").select("*").order("full_name"),
+  ]);
 
   const isAdmin = profile?.role === "admin";
 

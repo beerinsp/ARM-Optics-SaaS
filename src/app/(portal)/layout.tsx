@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { getLocale, getDict } from "@/lib/i18n";
+import { getCachedUser } from "@/lib/supabase/server";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
@@ -11,10 +12,7 @@ export default async function PortalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await getCachedUser();
 
   if (!user) {
     redirect("/portal-login");

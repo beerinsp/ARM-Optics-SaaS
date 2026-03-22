@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
-import { getLocale, getDict } from "@/lib/i18n";
+import { createClient, getCachedUser } from "@/lib/supabase/server";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import { formatCurrency, formatDate, ORDER_STATUS_COLORS } from "@/lib/utils";
 import Link from "next/link";
 import { Users, ShoppingBag, Clock, CheckCircle, Plus, ArrowRight } from "lucide-react";
@@ -7,8 +8,14 @@ import { Button } from "@/components/ui/button";
 import type { OrderWithCustomer } from "@/types/database";
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const locale = await getLocale();
+  // Resolve user + supabase client before Promise.all so all 5 queries launch truly in parallel.
+  // Previously auth.getUser() was awaited *inside* the Promise.all, blocking the staffProfile
+  // slot from starting until the auth round-trip completed.
+  const [{ data: { user } }, supabase, locale] = await Promise.all([
+    getCachedUser(),
+    createClient(),
+    getLocale(),
+  ]);
   const dict = getDict(locale);
   const t = dict.dashboard;
 
@@ -32,7 +39,7 @@ export default async function DashboardPage() {
     supabase
       .from("staff_profiles")
       .select("full_name, role")
-      .eq("id", (await supabase.auth.getUser()).data.user?.id ?? "")
+      .eq("id", user?.id ?? "")
       .single(),
   ]);
 

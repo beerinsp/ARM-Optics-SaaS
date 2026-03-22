@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
-import { getLocale, getDict } from "@/lib/i18n";
+import { createClient, getCachedUser } from "@/lib/supabase/server";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import { redirect } from "next/navigation";
 import { formatDate, formatCurrency, ORDER_STATUS_COLORS } from "@/lib/utils";
 import Link from "next/link";
@@ -7,12 +8,14 @@ import { ShoppingBag, Eye, ChevronRight, Phone, Mail } from "lucide-react";
 import type { Order, Prescription } from "@/types/database";
 
 export default async function PortalDashboardPage() {
-  const locale = await getLocale();
+  const [{ data: { user } }, supabase, locale] = await Promise.all([
+    getCachedUser(),
+    createClient(),
+    getLocale(),
+  ]);
   const dict = getDict(locale);
   const t = dict.portal;
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/portal-login");
 
   // Find customer linked to this portal user
