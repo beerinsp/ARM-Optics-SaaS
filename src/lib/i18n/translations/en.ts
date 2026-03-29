@@ -463,4 +463,5 @@ export const en = {
   },
 } as const;
 
-export type Dictionary = typeof en;
+type DeepStringMap<T> = { [K in keyof T]: T[K] extends string ? string : DeepStringMap<T[K]> };
+export type Dictionary = DeepStringMap<typeof en>;

@@ -10,7 +10,7 @@ export const LOCALES: Locale[] = ["en", "bg"];
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALE_COOKIE = "arm_locale";
 
-export type Dictionary = typeof en;
+export type Dictionary = import("./translations/en").Dictionary;
 
 /** Return the translation dictionary for the given locale. */
 export function getDict(locale: Locale): Dictionary {
