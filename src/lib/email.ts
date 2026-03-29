@@ -1,6 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.EMAIL_FROM ?? "noreply@armoptics.com.au";
 
 export interface GlassesReadyParams {
@@ -37,6 +36,7 @@ export async function sendGlassesReadyEmail({
   orderNumber,
   locale = "en",
 }: GlassesReadyParams) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const c = GLASSES_READY_CONTENT[locale];
   return resend.emails.send({
     from: FROM,
