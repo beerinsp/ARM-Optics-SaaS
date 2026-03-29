@@ -24,6 +24,7 @@ ARM Optics CRM is a production-ready SaaS platform built for an Australian optic
 | Inventory Sync | GenSoft MoneyWorks (via Supabase Edge Function) |
 | UI Primitives | Radix UI, Lucide React icons |
 | Toasts | Sonner |
+| Internationalisation | Custom i18n — EN / BG, cookie-based locale, dictionary pattern |
 
 ---
 
@@ -40,6 +41,18 @@ ARM Optics CRM is a production-ready SaaS platform built for an Australian optic
 ---
 
 ## Architecture
+
+### Internationalisation (i18n)
+
+- **Supported locales:** English (`en`) and Bulgarian (`bg`)
+- **Default locale:** `en`
+- **Locale storage:** Cookie `arm_locale` (read server-side via `next/headers`)
+- **Server components:** Call `getLocale()` from `src/lib/i18n/server.ts`, then `getDict(locale)` to get the typed dictionary
+- **Client components:** Use `useLocale()` hook (from `src/lib/i18n/context.tsx`) — locale + dict injected by `LocaleProvider` in root layout
+- **Root layout** wraps the entire app in `<LocaleProvider>` and sets `<html lang={locale}>`
+- **Manrope font** loads the `cyrillic` subset to support Bulgarian text
+- **Language switcher:** `LanguageSwitcher` component (compact variant in portal header, full variant in staff sidebar)
+- **Translation files:** `src/lib/i18n/translations/en.ts` and `bg.ts` — typed via `Dictionary = typeof en`
 
 ### Auth Model (Two-Tier)
 
@@ -386,6 +399,12 @@ supabase/functions/
   gensoft-sync/                 MoneyWorks product sync
 
 src/lib/
+  i18n/
+    index.ts                    Shared utilities — getDict(), Locale type, LOCALES, LOCALE_COOKIE
+    server.ts                   Server-only getLocale() — reads arm_locale cookie
+    context.tsx                 LocaleProvider + useLocale() client hook
+    translations/en.ts          English translation dictionary (source of truth for Dictionary type)
+    translations/bg.ts          Bulgarian translation dictionary
   validations/order.ts          Zod schema for orders
   validations/customer.ts       Zod schema for customers
   validations/prescription.ts   Zod schema for prescriptions
@@ -436,6 +455,7 @@ All staff and portal pages are implemented:
 - Email notifications (glasses ready)
 - GenSoft product sync
 - Scheduled reminder processing
+- Full dual-language UI — English and Bulgarian, switchable via `LanguageSwitcher` in header/sidebar
 
 **Needs to run:** Supabase project credentials in `.env.local`
 

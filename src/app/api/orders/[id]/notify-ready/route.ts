@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sendGlassesReadyEmail } from "@/lib/email";
-import { getLocale } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
 
 interface RouteParams {
   params: Promise<{ id: string }>;

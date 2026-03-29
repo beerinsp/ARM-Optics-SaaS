@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { getLocale, getDict } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { formatDate, formatCurrency, formatRxValue, ORDER_STATUS_COLORS } from "@/lib/utils";
 import type { OrderWithDetails } from "@/types/database";

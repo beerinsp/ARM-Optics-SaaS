@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { getLocale, getDict } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
+import { getDict } from "@/lib/i18n";
 import { PageHeader } from "@/components/layout/PageHeader";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
